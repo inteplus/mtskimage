@@ -9,6 +9,9 @@ import skimage.draw as _sd
 import scipy.spatial as _ss
 
 
+__all__ = ['poly2rect']
+
+
 def tl_int(img, x, y):
     if x < 0 or y < 0:
         return 0
