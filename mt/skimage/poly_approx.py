@@ -1,7 +1,7 @@
 '''Approximates a polygon with an axis-aligned rectangle.'''
 
 
-from mt.geo.rect import rect
+from mt.geo.rect import Rect
 import numpy as _np
 import scipy.ndimage as _sn
 import skimage.transform.integral as _sti
@@ -27,7 +27,7 @@ def rect_sum(img, r):
     return tl_int(img, r.max_x, r.max_y) + tl_int(img, r.min_x-1, r.min_y-1) - tl_int(img, r.max_x, r.min_y-1) - tl_int(img, r.min_x-1, r.max_y)
 
 def rect_perimeter(img, r):
-    return (rect_sum(img, r) - rect_sum(img, rect(min_x=r.min_x+1, min_y=r.min_y+1, max_x=r.max_x-1, max_y=r.max_y-1))) / ((r.max_x + r.max_y - r.min_x - r.min_y)*2)
+    return (rect_sum(img, r) - rect_sum(img, Rect(min_x=r.min_x+1, min_y=r.min_y+1, max_x=r.max_x-1, max_y=r.max_y-1))) / ((r.max_x + r.max_y - r.min_x - r.min_y)*2)
 
 
 def poly2rect(poly):
@@ -40,7 +40,7 @@ def poly2rect(poly):
 
     Returns
     -------
-        rect : geomt.rect
+        rect : mt.geo.rect.Rect
             a 2D rectangle with integer coordinates
 
     '''
@@ -55,9 +55,9 @@ def poly2rect(poly):
 
     # special cases
     if N == 0:
-        return rect()
+        return Rect()
     if N <= 2 or tl[0] >= br[0] or tl[1] >= br[1]:
-        return rect(min_x=tl[0], min_y=tl[1], max_x=br[0], max_y=br[1])
+        return Rect(min_x=tl[0], min_y=tl[1], max_x=br[0], max_y=br[1])
 
     # convexify if necessary
     if N > 3:
@@ -80,7 +80,7 @@ def poly2rect(poly):
     img = _sti.integral_image(edt)
 
     # optimise
-    r0 = rect(min_x=0, min_y=0, max_x=w-1, max_y=h-1)
+    r0 = Rect(min_x=0, min_y=0, max_x=w-1, max_y=h-1)
     loss0 = rect_perimeter(img, r0)
     dirty = True
     while dirty:
@@ -88,7 +88,7 @@ def poly2rect(poly):
 
         # top
         if r0.min_y+1 < r0.max_y:
-            r = rect(min_x=r0.min_x, min_y=r0.min_y+1, max_x=r0.max_x, max_y=r0.max_y)
+            r = Rect(min_x=r0.min_x, min_y=r0.min_y+1, max_x=r0.max_x, max_y=r0.max_y)
             loss = rect_perimeter(img, r)
             if loss < loss0:
                 r0 = r
@@ -97,7 +97,7 @@ def poly2rect(poly):
 
         # left
         if r0.min_x+1 < r0.max_x:
-            r = rect(min_x=r0.min_x+1, min_y=r0.min_y, max_x=r0.max_x, max_y=r0.max_y)
+            r = Rect(min_x=r0.min_x+1, min_y=r0.min_y, max_x=r0.max_x, max_y=r0.max_y)
             loss = rect_perimeter(img, r)
             if loss < loss0:
                 r0 = r
@@ -106,7 +106,7 @@ def poly2rect(poly):
 
         # bottom
         if r0.min_y+1 < r0.max_y:
-            r = rect(min_x=r0.min_x, min_y=r0.min_y, max_x=r0.max_x, max_y=r0.max_y-1)
+            r = Rect(min_x=r0.min_x, min_y=r0.min_y, max_x=r0.max_x, max_y=r0.max_y-1)
             loss = rect_perimeter(img, r)
             if loss < loss0:
                 r0 = r
@@ -115,11 +115,11 @@ def poly2rect(poly):
 
         # right
         if r0.min_x+1 < r0.max_x:
-            r = rect(min_x=r0.min_x, min_y=r0.min_y, max_x=r0.max_x-1, max_y=r0.max_y)
+            r = Rect(min_x=r0.min_x, min_y=r0.min_y, max_x=r0.max_x-1, max_y=r0.max_y)
             loss = rect_perimeter(img, r)
             if loss < loss0:
                 r0 = r
                 loss0 = loss
                 dirty = True
 
-    return rect(min_x=r0.min_x+tl[0], min_y=r0.min_y+tl[1], max_x=r0.max_x+tl[0], max_y=r0.max_y+tl[1])
+    return Rect(min_x=r0.min_x+tl[0], min_y=r0.min_y+tl[1], max_x=r0.max_x+tl[0], max_y=r0.max_y+tl[1])
