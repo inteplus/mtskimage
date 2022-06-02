@@ -16,7 +16,7 @@ setup(
     #zip_safe=False,
     install_requires=[
         'scikit-image>=0.15.0',
-        'mtgeo>=0.5.2',
+        'mtgeo>=0.9.0',
     ],
     url='https://github.com/inteplus/mtskimage',
     project_urls={
