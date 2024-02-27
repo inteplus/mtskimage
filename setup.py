@@ -3,6 +3,8 @@
 import os
 from setuptools import setup, find_namespace_packages
 
+VERSION_FILE = os.path.join(os.path.dirname(__file__), "VERSION.txt")
+
 setup(
     name="mtskimage",
     description="Minh-Tri Pham's extra modules for scikit-image",
